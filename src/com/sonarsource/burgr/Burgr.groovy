@@ -5,35 +5,54 @@ package com.sonarsource.burgr
 def fakeCommit(url, branch, commit) {
   echo 'Simulate a notification to BURGR from GitHub (push, PRs, ...)'
   def data = extractDataForBurgrFromURL(url)
-  def currentDir = pwd
-  echo currentDir
-  // readFile read a file from the workspace. So it can not find the following file as we are in the workspace of the caller
-  // TO CHANGE
-  def bc = readFile(this.getClass().getResource('commit-burgr.json'))
-  def result = bc.toString().replaceAll("@@BRANCH@@", branch)
-                              .replaceAll("@@COMMIT@@", commit)
-                              .replaceAll("@@REPO_URL@@", data['url'])
-                              .replaceAll("@@OWNER@@", data['owner'])
-                              .replaceAll("@@PROJECT@@", data['project'])
-                              .replaceAll("@@TIMESTAMP@@", data['timestamp'])
-  writeFile file:"commit-burgr.tmp", text: result
+  def message = """
+  {
+    "ref": "refs/heads/${branch}",
+    "compare": "${data['url']}/commit/${commit}/compare",
+    "head_commit": {
+      "id": "${commit}",
+      "message": "Fake commit message for ${commit}",
+      "timestamp": "${data['timestamp']}",
+      "url": "${data['url']}/commit/${commit}"
+    },
+    "repository": {
+      "owner": {
+        "name": "${data['owner']}"
+      },
+      "name": "${data['project']}",
+      "url": "${data['url']}"
+    },
+    "sender": {
+      "login": "Builders",
+      "avatar_url": "https://www.google.com/a/sonarsource.com/images/logo.gif"
+    }
+  }
+  """
+  writeFile file:"commit-burgr.tmp", text: message
   sh "curl -X POST -d @commit-burgr.tmp --header \"Content-Type:application/json\" ${env.BURGR_URL}/api/commit/github"
 }
 
-def notifyBurgr(url, branch, commit, step, type, status){
+def notifyBurgr(url, branch, commit, step, type, status) {
+  echo "Send a step notification to BURGR: [repo: ${url}, branch: ${branch}, commit: ${commit}, step: ${step}, type: ${type}, status: ${status}]"
   def data = extractDataForBurgrFromURL(url)
-  def bc = readFile(this.getClass().getResource('src/com/sonastep-burgr.json'))
-  def result = bc.toString().replaceAll("@@BRANCH@@", branch)
-                            .replaceAll("@@COMMIT@@", commit)
-                            .replaceAll("@@OWNER@@", data['owner'])
-                            .replaceAll("@@PROJECT@@", data['project'])
-                            .replaceAll("@@TIMESTAMP@@", data['timestamp'])
-                            .replaceAll("@@BUILD_NUMBER@@", env.BUILD_NUMBER)
-                            .replaceAll("@@BURGR_STEP_NAME@@", step)
-                            .replaceAll("@@BURGR_STEP_TYPE@@", type)
-                            .replaceAll("@@BURGR_STEP_STATUS@@", status)
-                            .replaceAll("@@BUILD_URL@@", env.BUILD_URL)
-  writeFile file:"step-burgr.tmp", text: result
+  def message = """
+  {
+    "repository": "${data['owner']}/${data['project']}",
+    "pipeline": "${env.BUILD_NUMBER}",
+    "name": "${step}",
+    "system": "cix",
+    "type": "${type}",
+    "number": "${env.BUILD_NUMBER}",
+    "branch": "${branch}",
+    "sha1": "${commit}",
+    "url": "${env.BUILD_URL}",
+    "status": "${status}",
+    "metadata": "{}",
+    "started_at": "${data['timestamp']}",
+    "finished_at": "${data['timestamp']}"
+  }
+  """
+  writeFile file:"step-burgr.tmp", text: message
   sh "curl -X POST -d @step-burgr.tmp --header \"Content-Type:application/json\" ${env.BURGR_URL}/api/stage"
 }
 
