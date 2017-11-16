@@ -7,6 +7,8 @@ def fakeCommit(url, branch, commit) {
   def data = extractDataForBurgrFromURL(url)
   def currentDir = pwd
   echo currentDir
+  // readFile read a file from the workspace. So it can not find the following file as we are in the workspace of the caller
+  // TO CHANGE
   def bc = readFile(this.getClass().getResource('commit-burgr.json'))
   def result = bc.toString().replaceAll("@@BRANCH@@", branch)
                               .replaceAll("@@COMMIT@@", commit)
