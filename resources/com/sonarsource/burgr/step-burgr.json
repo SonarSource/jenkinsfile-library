@@ -1,0 +1,15 @@
+{
+  "repository": "@@OWNER@@/@@PROJECT@@",
+  "pipeline": "@@BUILD_NUMBER@@",
+  "name": "@@BURGR_STEP_NAME@@",
+  "system": "cix",
+  "type": "@@BURGR_STEP_TYPE@@",
+  "number": "@@BUILD_NUMBER@@",
+  "branch": "@@BRANCH@@",
+  "sha1": "@@COMMIT@@",
+  "url": "@@BUILD_URL@@",
+  "status": "@@BURGR_STEP_STATUS@@",
+  "metadata": "{}",
+  "started_at": "@@TIMESTAMP@@",
+  "finished_at": "@@TIMESTAMP@@"
+}
