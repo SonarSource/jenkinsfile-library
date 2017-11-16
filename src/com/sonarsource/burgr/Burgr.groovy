@@ -5,6 +5,8 @@ package com.sonarsource.burgr
 def fakeCommit(url, branch, commit) {
   echo 'Simulate a notification to BURGR from GitHub (push, PRs, ...)'
   def data = extractDataForBurgrFromURL(url)
+  def currentDir = pwd
+  echo currentDir
   def bc = readFile(this.getClass().getResource('commit-burgr.json'))
   def result = bc.toString().replaceAll("@@BRANCH@@", branch)
                               .replaceAll("@@COMMIT@@", commit)
