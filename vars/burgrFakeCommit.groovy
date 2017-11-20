@@ -2,7 +2,7 @@
 
 def call(url, branch, commit, timestamp) {
   echo 'Simulate a notification to BURGR from GitHub (push, PRs, ...)'
-  def data = extractDataForBurgrFromURL(url, timestamp)
+  def data = burgrExtractDataFromURL(url, timestamp)
   def message = """
   {
     "ref": "refs/heads/${branch}",

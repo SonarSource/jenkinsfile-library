@@ -2,7 +2,7 @@
 
 def call(url, branch, commit, step, type, status, timestamp) {
   echo "Send a step notification to BURGR: [repo: ${url}, branch: ${branch}, commit: ${commit}, step: ${step}, type: ${type}, status: ${status}]"
-  def data = extractDataForBurgrFromURL(url, timestamp)
+  def data = burgrExtractDataFromURL(url, timestamp)
   def message = """
   {
     "repository": "${data['owner']}/${data['project']}",
