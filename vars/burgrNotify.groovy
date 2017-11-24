@@ -13,7 +13,7 @@ def call(owner, project, buildNumber, branch, commit, step, type, status, starte
   def message = """  
   {
     "repository": "${owner}/${project}",
-    "buildNumber": "${buildNumber}",
+    "pipeline": "${buildNumber}",
     "name": "${step}",
     "system": "cix",
     "type": "${type}",
