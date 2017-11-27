@@ -1,17 +1,17 @@
 #!/usr/bin/groovy
 
-def call(url, branch, commit, timestamp) {
+def call() {
   echo 'Simulate a notification to BURGR from GitHub (push, PRs, ...)'
-  def data = burgrExtractDataFromURL(url, timestamp)
+  def data = computeGitData()
   def message = """
   {
-    "ref": "refs/heads/${branch}",
-    "compare": "${data['url']}/commit/${commit}/compare",
+    "ref": "refs/heads/${data['branch']}",
+    "compare": "${data['url']}/commit/${data['commit']}/compare",
     "head_commit": {
-      "id": "${commit}",
-      "message": "Fake commit message for ${commit}",
-      "timestamp": "${data['timestamp']}",
-      "url": "${data['url']}/commit/${commit}"
+      "id": "${data['commit']}",
+      "message": "Fake commit message for ${data['commit']}",
+      "timestamp": "${formatTimestamp(System.currentTimeMillis())}",
+      "url": "${data['url']}/commit/${data['commit']}"
     },
     "repository": {
       "owner": {

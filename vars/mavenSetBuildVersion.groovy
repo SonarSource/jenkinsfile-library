@@ -1,8 +1,12 @@
 #!/usr/bin/groovy
 
 def call() {
+  def snaptshot = '-SNAPSHOT'
   def currentVersion = mavenGetProjectVersion()
-  def releaseVersion = currentVersion.minus('-SNAPSHOT')
+  if (!currentVersion.contains(snaptshot)) {
+    return
+  }
+  def releaseVersion = currentVersion.minus(snaptshot)
   def digitSeparatorCount = releaseVersion.count('.')
   // Release are on 3 digits + build number
   while (digitSeparatorCount < 2) {
@@ -12,7 +16,7 @@ def call() {
   // Set the build number set up by the hook (if the build does not come from Jenkins (Travis, AppVeyor, ...) or from the Jenkins
   buildNumber = env.CI_BUILD_NUMBER ?: env.BUILD_NUMBER
   releaseVersion += ".${buildNumber}"
-  echo "Release version is ${releaseVersion}"
+  echo "Build version is ${releaseVersion}"
   try {
     sh "mvn org.codehaus.mojo:versions-maven-plugin:2.5:set -DnewVersion=${releaseVersion}"
   } catch(ex) {

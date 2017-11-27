@@ -1,9 +1,9 @@
 #!/usr/bin/groovy
 
 def call() {
-  burgrNotify("QA",
-              "qa",
-              "passed",
+  burgrNotify("Build",
+              "build",
+              "failed",
               currentBuild.getStartTimeInMillis(),
               System.currentTimeMillis())
 }
