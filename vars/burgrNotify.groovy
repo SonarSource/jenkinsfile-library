@@ -3,7 +3,6 @@
 def call(step, type, status, started_at, finished_at) {
   def data = computeGitData()
   def owner = data['owner']
-  def url = data['url']
   def project = data['project']
   def buildNumber = data['buildNumber']
   def branch = data['branch']
@@ -25,10 +24,10 @@ def call(step, type, status, started_at, finished_at) {
     "name": "${step}",
     "system": "cix",
     "type": "${type}",
-    "number": "${buildNumber}",
+    "number": "${env.BUILD_NUMBER}",
     "$branchLabel": "${branch}",
     "sha1": "${commit}",
-    "url": "${url}",
+    "url": "${env.BUILD_URL}",
     "status": "${status}",
     "metadata": "{}",
     "started_at": "${formatTimestamp(started_at)}",
