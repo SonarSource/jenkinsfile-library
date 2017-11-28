@@ -20,31 +20,39 @@ def call(status) {
     echo "Do not send a promote notification to BURGR for builds coming from a development branch"
     return
   }
-                                              
+
+  def branchLabel='branch'
+  if (branch.startsWith('PULLREQUEST-')){
+    branch = branch.minus('PULLREQUEST-')
+    branchLabel='pr_number'
+  }
+
   def metadata = '{}'
 
   echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${status}]"
 
-  def artifactsToDownload = repoxGetArtifactsToPublish(project, buildNumber)
-  if ('null'.equals(artifactsToDownload)) {
-    artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
-  }
-  if (!'null'.equals(artifactsToDownload)) {
-    def version = repoxGetProjectVersion(project, buildNumber)
-    def artifacts = artifactsToDownload.tokenize(',')
-    def promotedRepo = repoxGetDataFromBuildInfo(project, buildNumber, """'.buildInfo.statuses[] | select(.status | contains("it-passed")).repository'""")
-    def List urls = []
-    artifacts.each() {
-      def url = "${env.ARTIFACTORY_URL}/${promotedRepo}/"
-      def tokens = it.tokenize(':')
-      url += tokens[0].replace('.', '/') + '/'
-      url += tokens[1] + '/'
-      url += version + '/'
-      url += tokens[1] + '-' + version + '.' + tokens[2]
-      urls.add(url)
+  if ('passed'.equals(status)) {
+    def artifactsToDownload = repoxGetArtifactsToPublish(project, buildNumber)
+    if ('null'.equals(artifactsToDownload)) {
+      artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
     }
-    def metadataUrl = urls.join(',')
-    metadata = """{\\"version\\":\\"${version}\\",\\"url\\":\\"${metadataUrl}\\"}"""
+    if (!'null'.equals(artifactsToDownload)) {
+      def version = repoxGetProjectVersion(project, buildNumber)
+      def artifacts = artifactsToDownload.tokenize(',')
+      def promotedRepo = repoxGetDataFromBuildInfo(project, buildNumber, """'.buildInfo.statuses[] | select(.status | contains("it-passed")).repository'""")
+      def List urls = []
+      artifacts.each() {
+        def url = "${env.ARTIFACTORY_URL}/${promotedRepo}/"
+        def tokens = it.tokenize(':')
+        url += tokens[0].replace('.', '/') + '/'
+        url += tokens[1] + '/'
+        url += version + '/'
+        url += tokens[1] + '-' + version + '.' + tokens[2]
+        urls.add(url)
+      }
+      def metadataUrl = urls.join(',')
+      metadata = """{\\"version\\":\\"${version}\\",\\"url\\":\\"${metadataUrl}\\"}"""
+    }
   }
   def url = "${env.ARTIFACTORY_URL}/webapp/builds/${project}/${buildNumber}"
   def message = """
@@ -55,7 +63,7 @@ def call(status) {
     "system": "cix",
     "type": "promotion",
     "number": "${buildNumber}",
-    "branch": "${branch}",
+    "${branchLabel}": "${branch}",
     "sha1": "${commit}",
     "url": "${url}",
     "status": "${status}",
