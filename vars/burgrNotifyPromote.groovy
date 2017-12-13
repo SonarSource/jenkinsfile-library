@@ -27,7 +27,8 @@ def call(status) {
     branchLabel='pr_number'
   }
 
-  def metadata = '{}'
+  def version = repoxGetProjectVersion(project, buildNumber)
+  def metadata = """{\\"version\\":\\"${version}\\"}"""
 
   echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${status}]"
 
@@ -37,7 +38,6 @@ def call(status) {
       artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
     }
     if (!'null'.equals(artifactsToDownload)) {
-      def version = repoxGetProjectVersion(project, buildNumber)
       def artifacts = artifactsToDownload.tokenize(',')
       def promotedRepo = repoxGetDataFromBuildInfo(project, buildNumber, """'.buildInfo.statuses[] | select(.status | contains("it-passed")).repository'""")
       def List urls = []
