@@ -8,16 +8,18 @@ def call() {
   def commit = data['commit']
 
   def boolean doPromote = false
-  def targetRepo = 'sonarsource-dev'
+  def targetRepo = ''
   def status = 'it-passed-pr'
 
+  def repo = repoxGetDataFromBuildInfo(project, buildNumber, ".buildInfo.properties[\\\"buildInfo.env.ARTIFACTORY_DEPLOY_REPO\\\"]")
+
   if ("master".equals(branch) || branch.startsWith("branch-")) {
-    def repo = repoxGetDataFromBuildInfo(project, buildNumber, ".buildInfo.properties[\\\"buildInfo.env.ARTIFACTORY_DEPLOY_REPO\\\"]")
     targetRepo = repo.replace('qa', 'builds')
     status = 'it-passed'
     doPromote = true
   }
   if (branch.startsWith("PULLREQUEST-")) {
+    targetRepo = repo.replace('qa', 'dev')
     doPromote = true
   }
   if (doPromote) {
