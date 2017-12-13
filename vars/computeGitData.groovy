@@ -1,10 +1,10 @@
 #!/usr/bin/groovy
 
 def Map call() {
-  def owner = env.GITHUB_REPOSITORY_OWNER
+  def owner = env.GITHUB_REPOSITORY_OWNER ?: env.GITHUB_REPOSITORY_OWNER_NAME
   def project = env.CI_BUILD_NAME
   def url = "https://github.com/${owner}/${project}"
-  def buildNumber = env.CI_BUILD_NUMBER
+  def buildNumber = env.CI_BUILD_NUMBER  ?: env.BUILD_NUMBER
   def branch = env.GITHUB_BRANCH
   def commit = env.GIT_SHA1
   if (!env.CI_BUILD_NAME) {
