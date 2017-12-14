@@ -2,7 +2,7 @@
 
 def String call(body) {
   try {
-    withCredentials([usernamePassword(credentialsId: '911c81fa-2ac1-4d0f-8223-6439a027e237', passwordVariable: 'GITHUB_TOKEN', usernameVariable: 'NOT_USED_1')]) {
+    withCredentials([string(credentialsId: 'sonartech-github-token', variable: 'GITHUB_TOKEN')]) {
       body.call()
     }
   } catch(ex) {

@@ -1,6 +1,7 @@
 #!/usr/bin/groovy
 
-def call(status) {
+def call() {
+  def STATUS_MAP = ['SUCCESS': 'passed', 'FAILURE': 'failed', 'UNSTABLE': 'failed', 'ABORTED': 'cancelled']
   def data = computeGitData()
   def owner = data['owner']
   def project = data['project']
@@ -30,9 +31,9 @@ def call(status) {
   def version = repoxGetProjectVersion(project, buildNumber)
   def metadata = """{\\"version\\":\\"${version}\\"}"""
 
-  echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${status}]"
+  echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${STATUS_MAP[currentBuild.currentResult]}]"
 
-  if ('passed'.equals(status)) {
+  if ('passed'.equals(STATUS_MAP[currentBuild.currentResult])) {
     def artifactsToDownload = repoxGetArtifactsToPublish(project, buildNumber)
     if ('null'.equals(artifactsToDownload)) {
       artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
@@ -71,7 +72,7 @@ def call(status) {
     "${branchLabel}": "${branch}",
     "sha1": "${commit}",
     "url": "${url}",
-    "status": "${status}",
+    "status": "${STATUS_MAP[currentBuild.currentResult]}",
     "metadata": "${metadata}",
     "finished_at": "${formatTimestamp(System.currentTimeMillis())}"
   }
