@@ -47,7 +47,12 @@ def call(status) {
         url += tokens[0].replace('.', '/') + '/'
         url += tokens[1] + '/'
         url += version + '/'
-        url += tokens[1] + '-' + version + '.' + tokens[2]
+        url += tokens[1] + '-' + version
+        classifier = tokens[3]
+        if (classifier) {
+          url += '-' + classifier
+        }
+        url += '.' + tokens[2]
         urls.add(url)
       }
       def metadataUrl = urls.join(',')
