@@ -40,10 +40,9 @@ def call() {
     }
     if (!'null'.equals(artifactsToDownload)) {
       def artifacts = artifactsToDownload.tokenize(',')
-      def promotedRepo = repoxGetDataFromBuildInfo(project, buildNumber, """'.buildInfo.statuses[] | select(.status | contains("it-passed")).repository'""")
       def List urls = []
       artifacts.each() {
-        def url = "${env.ARTIFACTORY_URL}/${promotedRepo}/"
+        def url = "${env.ARTIFACTORY_URL}/sonarsource/"
         def tokens = it.tokenize(':')
         url += tokens[0].replace('.', '/') + '/'
         url += tokens[1] + '/'
