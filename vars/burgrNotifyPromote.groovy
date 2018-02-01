@@ -10,7 +10,7 @@ def call() {
   def commit = data['commit']
 
   def doPromote = false
-  def promoteOnBranches = [ 'master', 'branch-', 'PULLREQUEST-' ]
+  def promoteOnBranches = [ 'master', 'branch-', 'PULLREQUEST-', 'dogfood-on-' ]
   for (it in promoteOnBranches) {
     if (branch.startsWith(it)) {
       doPromote = true

@@ -18,6 +18,11 @@ def call() {
     status = 'it-passed'
     doPromote = true
   }
+  if (branch.startsWith("dogfood-on-")) {
+    targetRepo = "sonarsource-dogfood-builds"
+    status = 'it-passed'
+    doPromote = true
+  }
   if (branch.startsWith("PULLREQUEST-")) {
     targetRepo = repo.replace('qa', 'dev')
     doPromote = true
