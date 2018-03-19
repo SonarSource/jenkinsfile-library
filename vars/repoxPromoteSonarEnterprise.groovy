@@ -35,13 +35,15 @@ def call() {
     echo "Promoting build ${project}#${buildNumber}"
     def httpCode
     repoxCredential() {
-      httpCode = sh returnStdout: true, script:  "curl --write-out %{http_code} -X GET -o /dev/null -u${env.ARTIFACTORY_API_USER}:${env.ARTIFACTORY_API_PASSWORD} ${env.ARTIFACTORY_URL}/api/plugins/execute/multiRepoPromote?params=buildName=$project;buildNumber=$buildNumber;src1=$srcRepo1;target1=$targetRepo1;src2=$srcRepo1;target2=$targetRepo2;status=$STATUS"
-    }
-    if ('200'.equals(httpCode)) {
-      echo "Build ${project}#${buildNumber} promoted to ${targetRepo}"
-      return
-    }
-    error "Build ${project}#${buildNumber} promotion to ${targetRepo} failed with code ${httpCode}"
+      httpCode = sh returnStdout: true, script:  "curl --write-out %{http_code} -X GET -o /dev/null -u${env.ARTIFACTORY_API_USER}:${env.ARTIFACTORY_API_PASSWORD} '${env.ARTIFACTORY_URL}/api/plugins/execute/multiRepoPromote?params=buildName=$project;buildNumber=$buildNumber;src1=$srcRepo1;target1=$targetRepo1;src2=$srcRepo1;target2=$targetRepo2;status=$status'"
+      echo httpCode        
+      if ('200'.equals(httpCode.trim())) {
+        echo "Build ${project}#${buildNumber} promoted to ${targetRepo1} and ${targetRepo2}"
+        return
+      } else {
+        error "Build ${project}#${buildNumber} promotion to ${targetRepo1} and ${targetRepo2} failed with code ${httpCode}"
+      }
+    }    
   }
   echo "No promotion for builds coming from a development branch"
 }
