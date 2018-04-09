@@ -12,8 +12,6 @@ def call() {
         echo "ready to checkout PR $prNumber merge commit"
       }
     }
-    //checkout master
-    sh "git checkout $GITHUB_TARGET_BRANCH"
     //fetch the PR merge commit
     sh "git pull origin pull/$prNumber/merge:prmerge$prNumber"
     //checkout the PR merge commit
