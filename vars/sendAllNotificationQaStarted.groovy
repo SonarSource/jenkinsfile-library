@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-def call() { 
-  burgrNotifyQaStarted()
-  githubNotifyQaPending()    
+def call(metadata) { 
+  burgrNotifyQaStarted(metadata)
+  githubNotifyQaPending(metadata)    
 }

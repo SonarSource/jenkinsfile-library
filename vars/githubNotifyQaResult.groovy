@@ -1,8 +1,10 @@
 #!/usr/bin/groovy
 
-def call() {
+def call(metadata) {
   def STATUS_MAP = ['SUCCESS': 'success', 'FAILURE': 'failure', 'UNSTABLE': 'failure', 'ABORTED': 'error']
+  def defaultDescription = 'QA on cix'
+  def defaultContext = 'cix-qa'
   githubNotify("${STATUS_MAP[currentBuild.currentResult]}",
-              'QA on cix',
-              'cix-qa')
+              metadata ? "$metadata $defaultDescription" : defaultDescription,
+              metadata ? "$defaultContext-$metadata" : defaultContext)
 }

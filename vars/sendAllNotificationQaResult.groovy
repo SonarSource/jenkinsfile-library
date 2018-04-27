@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-def call() { 
-  burgrNotifyQaResult()
-  githubNotifyQaResult()    
+def call(metadata) { 
+  burgrNotifyQaResult(metadata)
+  githubNotifyQaResult(metadata)    
 }

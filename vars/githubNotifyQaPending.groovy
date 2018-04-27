@@ -1,7 +1,9 @@
 #!/usr/bin/groovy
 
-def call() {
+def call(metadata) {
+  def defaultDescription = 'QA on cix'
+  def defaultContext = 'cix-qa'
   githubNotify('pending',
-              'QA on cix',
-              'cix-qa')
+              metadata ? "$metadata $defaultDescription" : defaultDescription,
+              metadata ? "$defaultContext-$metadata" : defaultContext)
 }
