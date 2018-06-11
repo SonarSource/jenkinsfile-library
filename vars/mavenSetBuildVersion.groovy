@@ -17,8 +17,9 @@ def call() {
   buildNumber = env.CI_BUILD_NUMBER ?: env.BUILD_NUMBER
   releaseVersion += ".${buildNumber}"
   echo "Build version is ${releaseVersion}"
+  def mvnCommand = isUnix() ? 'mvn' : 'mvn.cmd'
   try {
-    sh "mvn org.codehaus.mojo:versions-maven-plugin:2.5:set -DnewVersion=${releaseVersion}"
+    sh "${mvnCommand} org.codehaus.mojo:versions-maven-plugin:2.5:set -DnewVersion=${releaseVersion}"
   } catch(ex) {
     error("Unable to set the verion of the project to ${releaseVersion}")
   }
