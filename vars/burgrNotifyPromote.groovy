@@ -34,12 +34,21 @@ def call() {
   echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${STATUS_MAP[currentBuild.currentResult]}]"
 
   if ('passed'.equals(STATUS_MAP[currentBuild.currentResult])) {
-    def artifactsToDownload = repoxGetArtifactsToPublish(project, buildNumber)
-    if ('null'.equals(artifactsToDownload)) {
-      artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
+    def artifactsToPublish = repoxGetArtifactsToPublish(project, buildNumber)
+    def artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
+    
+    def artifactsToDisplay
+    if (!'null'.equals(artifactsToPublish)) {
+      artifactsToDisplay = artifactsToPublish
+      if (!'null'.equals(artifactsToDownload)) {
+        artifactsToDisplay += ",${artifactsToDownload}"
+      }
+    } else {
+      artifactsToDisplay = artifactsToDownload
     }
-    if (!'null'.equals(artifactsToDownload)) {
-      def artifacts = artifactsToDownload.tokenize(',')
+
+    if (!'null'.equals(artifactsToDisplay)) {
+      def artifacts = artifactsToDisplay.tokenize(',')
       def List urls = []
       artifacts.each() {
         def url = "${env.ARTIFACTORY_URL}/sonarsource/"
