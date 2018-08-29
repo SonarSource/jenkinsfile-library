@@ -26,6 +26,5 @@ def call() {
     }
   }
   """
-  writeFile file:"commit-burgr.tmp", text: message
-  sh "curl -X POST -d @commit-burgr.tmp --header \"Content-Type:application/json\" ${env.BURGR_URL}/api/commit/github"
+  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/commit/github"
 }

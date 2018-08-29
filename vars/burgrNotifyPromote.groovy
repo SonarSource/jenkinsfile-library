@@ -27,16 +27,26 @@ def call() {
     branch = branch.minus('PULLREQUEST-')
     branchLabel='pr_number'
   }
-
-  def version = repoxGetProjectVersion(project, buildNumber)
+  
+  def response = httpRequest authentication: 'repox-api', httpMode: 'GET', url: "${env.ARTIFACTORY_URL}/api/build/${project}/${buildNumber}", validResponseCodes: '200'
+  def buildInfo = readJSON text: response.content
+  def version = buildInfo.buildInfo.properties['buildInfo.env.PROJECT_VERSION']
   def metadata = """{\\"version\\":\\"${version}\\"}"""
 
   echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${STATUS_MAP[currentBuild.currentResult]}]"
 
   if ('passed'.equals(STATUS_MAP[currentBuild.currentResult])) {
-    def artifactsToPublish = repoxGetArtifactsToPublish(project, buildNumber)
-    def artifactsToDownload = repoxGetArtifactsToDownload(project, buildNumber)
     
+    
+    def artifactsToPublish = buildInfo.buildInfo.properties['buildInfo.env.ARTIFACTS_TO_PUBLISH']
+    if ('null'.equals(artifactsToPublish)) {
+      artifactsToPublish = buildInfo.buildInfo.modules[0].properties['artifactsToPublish']
+    }
+    def artifactsToDownload = buildInfo.buildInfo.properties['buildInfo.env.ARTIFACTS_TO_DOWNLOAD']
+    if ('null'.equals(artifactsToDownload)) {
+      artifactsToDownload = buildInfo.buildInfo.modules[0].properties['artifactsToDownload']
+    }
+
     def artifactsToDisplay
     if (!'null'.equals(artifactsToPublish)) {
       artifactsToDisplay = artifactsToPublish
@@ -85,6 +95,5 @@ def call() {
     "finished_at": "${formatTimestamp(System.currentTimeMillis())}"
   }
   """
-  writeFile file:"step-burgr.tmp", text: message
-  sh "curl -X POST -d @step-burgr.tmp --header \"Content-Type:application/json\" ${env.BURGR_URL}/api/stage"
+  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage"
 }

@@ -14,7 +14,7 @@ def call() {
   def targetRepo2 = 'sonarsource-public-builds'
   def status = 'it-passed-pr'
 
-  def repo = repoxGetDataFromBuildInfo(project, buildNumber, ".buildInfo.properties[\\\"buildInfo.env.ARTIFACTORY_DEPLOY_REPO\\\"]")
+  def repo = repoxGetPropertyFromBuildInfo(project, buildNumber, 'buildInfo.env.ARTIFACTORY_DEPLOY_REPO')
 
   if ("master".equals(branch) || branch.startsWith("branch-")) {
     status = 'it-passed'
@@ -33,17 +33,9 @@ def call() {
   }
   if (doPromote) {
     echo "Promoting build ${project}#${buildNumber}"
-    def httpCode
-    repoxCredential() {
-      httpCode = sh returnStdout: true, script:  "curl --write-out %{http_code} -X GET -o /dev/null -u${env.ARTIFACTORY_API_USER}:${env.ARTIFACTORY_API_PASSWORD} '${env.ARTIFACTORY_URL}/api/plugins/execute/multiRepoPromote?params=buildName=$project;buildNumber=$buildNumber;src1=$srcRepo1;target1=$targetRepo1;src2=$srcRepo2;target2=$targetRepo2;status=$status'"
-      echo httpCode        
-      if ('200'.equals(httpCode.trim())) {
-        echo "Build ${project}#${buildNumber} promoted to ${targetRepo1} and ${targetRepo2}"
-        return
-      } else {
-        error "Build ${project}#${buildNumber} promotion to ${targetRepo1} and ${targetRepo2} failed with code ${httpCode}"
-      }
-    }    
+    httpRequest authentication: 'repox-api', httpMode: 'GET', responseHandle: 'NONE', url: "${env.ARTIFACTORY_URL}/api/plugins/execute/multiRepoPromote?params=buildName=$project;buildNumber=$buildNumber;src1=$srcRepo1;target1=$targetRepo1;src2=$srcRepo2;target2=$targetRepo2;status=$status", validResponseCodes: '200'
+    echo "Build ${project}#${buildNumber} promoted to ${targetRepo1} and ${targetRepo2}"
+    return
   }
   echo "No promotion for builds coming from a development branch"
 }

@@ -16,8 +16,7 @@ def call(state, description, context) {
     "context": "${context}" 
   }   
   """
-  writeFile file:"step-github.tmp", text: message
   githubCredential() {
-    sh "curl -X POST -d @step-github.tmp --header \"Content-Type:application/json\" https://api.github.com/repos/${owner}/${project}/statuses/${commit}?access_token=$GITHUB_TOKEN"  
+    httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "https://api.github.com/repos/${owner}/${project}/statuses/${commit}?access_token=$GITHUB_TOKEN"
   }
 }

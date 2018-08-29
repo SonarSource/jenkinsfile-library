@@ -34,6 +34,5 @@ def call(step, type, status, started_at, finished_at) {
     "finished_at": "${formatTimestamp(finished_at)}"
   }
   """
-  writeFile file:"step-burgr.tmp", text: message
-  sh "curl -X POST -d @step-burgr.tmp --header \"Content-Type:application/json\" ${env.BURGR_URL}/api/stage"  
+  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage"
 }

@@ -11,7 +11,7 @@ def call() {
   def targetRepo = ''
   def status = 'it-passed-pr'
 
-  def repo = repoxGetDataFromBuildInfo(project, buildNumber, ".buildInfo.properties[\\\"buildInfo.env.ARTIFACTORY_DEPLOY_REPO\\\"]")
+  def repo = repoxGetPropertyFromBuildInfo(project, buildNumber, 'buildInfo.env.ARTIFACTORY_DEPLOY_REPO')
 
   if ("master".equals(branch) || branch.startsWith("branch-")) {
     targetRepo = repo.replace('qa', 'builds')
@@ -38,16 +38,9 @@ def call() {
       "targetRepo": "${targetRepo}"
     }
     """
-    writeFile file:"promote.tmp", text: message
-    def httpCode
-    repoxCredential() {
-      httpCode = sh returnStdout: true, script:  "curl --write-out %{http_code} -X POST -o /dev/null -d @promote.tmp -H \"Content-Type: application/json\" -u${env.ARTIFACTORY_API_USER}:${env.ARTIFACTORY_API_PASSWORD} ${env.ARTIFACTORY_URL}/api/build/promote/${project}/${buildNumber}"
-    }
-    if ('200'.equals(httpCode)) {
-      echo "Build ${project}#${buildNumber} promoted to ${targetRepo}"
-      return
-    }
-    error "Build ${project}#${buildNumber} promotion to ${targetRepo} failed with code ${httpCode}"
+    httpRequest authentication: 'repox-api', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.ARTIFACTORY_URL}/api/build/promote/${project}/${buildNumber}", validResponseCodes: '200'
+    echo "Build ${project}#${buildNumber} promoted to ${targetRepo}"
+    return
   }
   echo "No promotion for builds coming from a development branch"
 }
