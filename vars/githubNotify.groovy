@@ -17,6 +17,6 @@ def call(state, description, context) {
   }   
   """
   githubCredential() {
-    httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "https://api.github.com/repos/${owner}/${project}/statuses/${commit}?access_token=$GITHUB_TOKEN"
+    httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "https://api.github.com/repos/${owner}/${project}/statuses/${commit}?access_token=$GITHUB_TOKEN", validResponseCodes: '100:599'
   }
 }

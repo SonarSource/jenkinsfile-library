@@ -34,5 +34,5 @@ def call(step, type, status, started_at, finished_at) {
     "finished_at": "${formatTimestamp(finished_at)}"
   }
   """
-  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage"
+  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage", validResponseCodes: '100:599'
 }
