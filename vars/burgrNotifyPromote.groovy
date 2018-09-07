@@ -36,28 +36,26 @@ def call() {
   echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${STATUS_MAP[currentBuild.currentResult]}]"
 
   if ('passed'.equals(STATUS_MAP[currentBuild.currentResult])) {
-    
-    
+        
     def artifactsToPublish = buildInfo.buildInfo.properties['buildInfo.env.ARTIFACTS_TO_PUBLISH']
-    if ('null'.equals(artifactsToPublish)) {
+    if (!artifactsToPublish) {
       artifactsToPublish = buildInfo.buildInfo.modules[0].properties['artifactsToPublish']
     }
     def artifactsToDownload = buildInfo.buildInfo.properties['buildInfo.env.ARTIFACTS_TO_DOWNLOAD']
-    if ('null'.equals(artifactsToDownload)) {
+    if (!artifactsToDownload) {
       artifactsToDownload = buildInfo.buildInfo.modules[0].properties['artifactsToDownload']
     }
 
     def artifactsToDisplay
-    if (!'null'.equals(artifactsToPublish)) {
+    if (artifactsToPublish) {
       artifactsToDisplay = artifactsToPublish
-      if (!'null'.equals(artifactsToDownload)) {
+      if (artifactsToDownload) {
         artifactsToDisplay += ",${artifactsToDownload}"
       }
     } else {
       artifactsToDisplay = artifactsToDownload
     }
-
-    if (!'null'.equals(artifactsToDisplay)) {
+    if (artifactsToDisplay) {
       def artifacts = artifactsToDisplay.tokenize(',')
       def List urls = []
       artifacts.each() {
@@ -95,5 +93,5 @@ def call() {
     "finished_at": "${formatTimestamp(System.currentTimeMillis())}"
   }
   """
-  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage"
+  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage", validResponseCodes: '100:599'
 }
