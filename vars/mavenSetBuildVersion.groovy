@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-def call() {
+def String call() {
   def snaptshot = '-SNAPSHOT'
   def currentVersion = mavenGetProjectVersion()
   if (!currentVersion.contains(snaptshot)) {
@@ -23,4 +23,5 @@ def call() {
   } catch(ex) {
     error("Unable to set the verion of the project to ${releaseVersion}")
   }
+  return releaseVersion
 }

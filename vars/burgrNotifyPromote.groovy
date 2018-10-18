@@ -38,24 +38,24 @@ def call() {
   if ('passed'.equals(STATUS_MAP[currentBuild.currentResult])) {
         
     def artifactsToPublish = buildInfo.buildInfo.properties['buildInfo.env.ARTIFACTS_TO_PUBLISH']
-    if (!artifactsToPublish) {
-      artifactsToPublish = buildInfo.buildInfo.modules[0].properties['artifactsToPublish']
+    if (artifactsToPublish == null) {
+      artifactsToPublish = getModuleProperty(buildInfo.buildInfo.modules[0], 'artifactsToPublish')
     }
     def artifactsToDownload = buildInfo.buildInfo.properties['buildInfo.env.ARTIFACTS_TO_DOWNLOAD']
-    if (!artifactsToDownload) {
-      artifactsToDownload = buildInfo.buildInfo.modules[0].properties['artifactsToDownload']
+    if (artifactsToDownload == null) {
+      artifactsToDownload = getModuleProperty(buildInfo.buildInfo.modules[0], 'artifactsToDownload')
     }
 
-    def artifactsToDisplay
-    if (artifactsToPublish) {
+    def artifactsToDisplay = null
+    if (artifactsToPublish != null) {
       artifactsToDisplay = artifactsToPublish
-      if (artifactsToDownload) {
+      if (artifactsToDownload != null) {
         artifactsToDisplay += ",${artifactsToDownload}"
       }
-    } else {
+    } else if (artifactsToDownload != null) {
       artifactsToDisplay = artifactsToDownload
     }
-    if (artifactsToDisplay) {
+    if (artifactsToDisplay != null) {
       def artifacts = artifactsToDisplay.tokenize(',')
       def List urls = []
       artifacts.each() {
@@ -94,4 +94,13 @@ def call() {
   }
   """
   httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage", validResponseCodes: '100:599'
+}
+
+def getModuleProperty(module, property) {
+  def ret = null 
+  def properties = module.properties
+  if (properties != null) {
+    ret = properties[property]
+  }
+  return ret
 }
