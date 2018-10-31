@@ -93,7 +93,7 @@ def call() {
     "finished_at": "${formatTimestamp(System.currentTimeMillis())}"
   }
   """
-  httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGR_URL}/api/stage", validResponseCodes: '100:599'
+  httpRequest authentication: 'BURGRX', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${message}", responseHandle: 'NONE', url: "${env.BURGRX_URL}/api/stage", validResponseCodes: '100:599'
 }
 
 def getModuleProperty(module, property) {
