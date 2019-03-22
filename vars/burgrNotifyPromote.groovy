@@ -31,7 +31,7 @@ def call() {
   def response = httpRequest authentication: 'repox-api', httpMode: 'GET', url: "${env.ARTIFACTORY_URL}/api/build/${project}/${buildNumber}", validResponseCodes: '200'
   def buildInfo = readJSON text: response.content
   def version = buildInfo.buildInfo.properties['buildInfo.env.PROJECT_VERSION']
-  def metadata = """{\\"version\\":\\"${version}\\"}"""
+  def metadata = """{\\"version\\":\\"${version}\\",\\"buildNumber\\":\\"${buildNumber}\\"}"""
 
   echo "Send a promote notification to BURGR: [owner: ${owner}, project: ${project}, buildNumber: ${buildNumber}, branch: ${branch}, commit: ${commit}, status: ${STATUS_MAP[currentBuild.currentResult]}]"
 
@@ -73,7 +73,7 @@ def call() {
         urls.add(url)
       }
       def metadataUrl = urls.join(',')
-      metadata = """{\\"version\\":\\"${version}\\",\\"url\\":\\"${metadataUrl}\\"}"""
+      metadata = """{\\"version\\":\\"${version}\\",\\"buildNumber\\":\\"${buildNumber}\\",\\"url\\":\\"${metadataUrl}\\"}"""
     }
   }
   def url = "${env.ARTIFACTORY_URL}/webapp/builds/${project}/${buildNumber}"
